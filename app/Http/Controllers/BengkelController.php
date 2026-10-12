@@ -31,4 +31,18 @@ class BengkelController extends Controller
 
         return redirect()->route('bengkel.index')->with('sukses', 'Booking servis berhasil!');
     }
+
+    public function dashboard()
+    {
+        $services = Service::orderBy('id', 'desc')->get();
+
+        $counts = [
+            'semua' => $services->count(),
+            'Pendaftaran' => $services->where('status', 'Pendaftaran')->count(),
+            'Dikerjakan' => $services->where('status', 'Dikerjakan')->count(),
+            'Selesai' => $services->where('status', 'Selesai')->count(),
+        ];
+
+        return view('bengkel.dashboard', compact('services', 'counts'));
+    }
 }
