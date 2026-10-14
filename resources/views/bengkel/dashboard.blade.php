@@ -6,6 +6,12 @@
 <h1 class="text-3xl font-bold text-slate-900 mb-2">Dashboard Admin</h1>
 <p class="text-slate-500 mb-6">Kelola booking servis masuk dari pelanggan.</p>
 
+@if(session('sukses'))
+    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm">
+        {{ session('sukses') }}
+    </div>
+@endif
+
 <div class="grid grid-cols-4 gap-4 mb-8">
     <div class="bg-white p-4 rounded-xl border">
         <div class="text-xs text-slate-500">Total</div>
@@ -34,8 +40,8 @@
                 <th class="p-3">Paket Servis</th>
                 <th class="p-3">Teknisi</th>
                 <th class="p-3">Estimasi</th>
-                <th class="p-3">Tanggal</th>
                 <th class="p-3">Status</th>
+                <th class="p-3">Aksi</th>
             </tr>
         </thead>
         <tbody class="divide-y">
@@ -61,18 +67,24 @@
                     <td class="p-3 font-semibold text-red-600">
                         Rp {{ number_format($s->estimasi_biaya ?? 0, 0, ',', '.') }}
                     </td>
-                    <td class="p-3">{{ $s->tanggal_servis }}</td>
                     <td class="p-3">
-                        @php
-                            $warna = [
-                                'Pendaftaran' => 'bg-amber-100 text-amber-800',
-                                'Dikerjakan' => 'bg-blue-100 text-blue-800',
-                                'Selesai' => 'bg-emerald-100 text-emerald-800',
-                            ][$s->status] ?? 'bg-slate-100';
-                        @endphp
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $warna }}">
-                            {{ $s->status }}
-                        </span>
+                        <form method="POST" action="{{ route('servis.updateStatus', $s->id) }}">
+                            @csrf
+                            <select name="status" onchange="this.form.submit()" 
+                                class="px-2 py-1 border rounded text-xs">
+                                @foreach(['Pendaftaran', 'Dikerjakan', 'Selesai'] as $opt)
+                                    <option value="{{ $opt }}" {{ $s->status === $opt ? 'selected' : '' }}>
+                                        {{ $opt }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </form>
+                    </td>
+                    <td class="p-3">
+                        <a href="{{ route('invoice', $s->id) }}" target="_blank"
+                           class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded transition inline-block">
+                            🧾 Invoice
+                        </a>
                     </td>
                 </tr>
             @empty
